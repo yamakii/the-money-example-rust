@@ -6,4 +6,7 @@
 - [x] equals
 - [x] nullとの等価比較(対象外)
 - [ ] 他のオブジェクトとの等価比較
-
+- [x] 5CHF * 2 = 10CHF
+- [ ] DollarとFrancの重複
+- [ ] equalsの一般化
+- [ ] timesの一般化
