@@ -3,4 +3,7 @@
 - [ ] amountをprivateにする
 - [x] Dollarの副作用をどうする？
 - [ ] Moneyの丸め処理をどうする？
+- [x] equals
+- [x] nullとの等価比較(対象外)
+- [ ] 他のオブジェクトとの等価比較
 
