@@ -1,30 +1,44 @@
 #![allow(dead_code)]
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-struct Dollar {
+struct Money {
     amount: i32,
+}
+
+impl Money {
+    fn new(amount: i32) -> Self {
+        Money { amount }
+    }
+    fn times(self, multiplier: i32) -> Self {
+        Money::new(self.amount * multiplier)
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+struct Dollar {
+    amount: Money,
 }
 
 impl Dollar {
     fn new(amount: i32) -> Self {
-        Dollar { amount }
+        Dollar { amount: Money::new(amount) }
     }
     fn times(self, multiplier: i32) -> Self {
-        Dollar::new(self.amount * multiplier)
+        Dollar { amount: self.amount.times(multiplier) }
     }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 struct Franc {
-    amount: i32,
+    amount: Money,
 }
 
 impl Franc {
     fn new(amount: i32) -> Self {
-        Franc { amount }
+        Franc { amount: Money::new(amount) }
     }
     fn times(self, multiplier: i32) -> Self {
-        Franc::new(self.amount * multiplier)
+        Franc { amount: self.amount.times(multiplier) }
     }
 }
 
