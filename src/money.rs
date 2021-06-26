@@ -19,36 +19,6 @@ impl Money {
     fn currency(self) -> &'static str { self.currency }
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-struct Dollar {
-    amount: Money,
-}
-
-impl Dollar {
-    fn new(amount: i32) -> Self {
-        Dollar { amount: Money::new(amount, "USD") }
-    }
-    fn times(self, multiplier: i32) -> Self {
-        Dollar { amount: self.amount.times(multiplier) }
-    }
-    fn currency(self) -> &'static str { self.amount.currency() }
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-struct Franc {
-    amount: Money,
-}
-
-impl Franc {
-    fn new(amount: i32) -> Self {
-        Franc { amount: Money::new(amount, "CHF") }
-    }
-    fn times(self, multiplier: i32) -> Self {
-        Franc { amount: self.amount.times(multiplier) }
-    }
-    fn currency(self) -> &'static str { self.amount.currency() }
-}
-
 #[cfg(test)]
 mod tests {
     use crate::money::{Money};
@@ -70,15 +40,6 @@ mod tests {
     fn test_equality() {
         assert_eq!(Money::dollar(5), Money::dollar(5));
         assert_ne!(Money::dollar(5), Money::dollar(6));
-        assert_eq!(Money::franc(5), Money::franc(5));
-        assert_ne!(Money::franc(5), Money::franc(6));
         assert_ne!(Money::dollar(5), Money::franc(5));
-    }
-
-    #[test]
-    fn test_franc_multiplication() {
-        let five = Money::franc(5);
-        assert_eq!(Money::franc(10), five.times(2));
-        assert_eq!(Money::franc(15), five.times(3));
     }
 }
