@@ -9,5 +9,7 @@
 - [x] 5CHF * 2 = 10CHF
 - [ ] DollarとFrancの重複
 - [x] equalsの一般化(対象外)
-- [ ] timesの一般化
-- [ ] FrancとDollarを比較する
+- [x] timesの一般化
+- [x] FrancとDollarを比較する
+- [x] 通貨の概念
+- [ ] test_franc_multiplicationを削除する？
