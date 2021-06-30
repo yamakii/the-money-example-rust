@@ -23,8 +23,17 @@ impl Currency for Franc {
 
 enum Expression<T: Currency> {
     Sum(Sum<T>),
+    Money(Money<T>),
 }
 
+impl<T: Currency> Expression<T> {
+    fn reduce(self) -> Money<T> {
+        match self {
+            Expression::Sum(sum) => sum.reduce(),
+            Expression::Money(money) => money,
+        }
+    }
+}
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 struct Money<T: Currency> {
@@ -57,9 +66,7 @@ struct Bank {}
 
 impl Bank {
     fn reduce<T: Currency>(self, source: Expression<T>) -> Money<T> {
-        match source {
-            Expression::Sum(sum) => sum.reduce(),
-        }
+        source.reduce()
     }
 }
 
@@ -101,21 +108,30 @@ mod tests {
     fn test_plus_return_sum() {
         let five = Money::<Dollar>::new(5);
         let result = five + five;
-        let sum = match result { Expression::Sum(x) => x };
+        let sum = match result {
+            Expression::Sum(x) => x,
+            _ => panic!("Sumが来るはず")
+        };
         assert_eq!(five, sum.augend);
         assert_eq!(five, sum.addend);
     }
 
     #[test]
     fn test_plus_reduce_sum() {
-        let sum = Expression::Sum(
-            Sum::new(
-                Money::<Dollar>::new(3),
-                Money::<Dollar>::new(4))
+        let sum = Expression::<Dollar>::Sum(
+            Sum::new(Money::new(3), Money::new(4))
         );
         let bank = Bank {};
         let reduced = bank.reduce::<Dollar>(sum);
         assert_eq!(Money::<Dollar>::new(7), reduced);
+    }
+
+    #[test]
+    fn test_plus_reduce_money() {
+        let bank = Bank {};
+        let money = Expression::<Dollar>::Money(Money::new(1));
+        let reduced = bank.reduce::<Dollar>(money);
+        assert_eq!(Money::<Dollar>::new(1), reduced);
     }
 
     #[test]
