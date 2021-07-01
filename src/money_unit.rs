@@ -61,6 +61,12 @@ impl Expression {
             Expression::Money(money) => money.reduce(bank, to),
         }
     }
+    fn times(&self, multiplier: i32) -> Expression {
+        match self {
+            Expression::Sum(sum) => sum.times(multiplier),
+            Expression::Money(money) => money.times(multiplier),
+        }
+    }
     fn plus(&self, rhs: &Self) -> Expression {
         Sum::new(self.clone(), rhs.clone()).into()
     }
@@ -82,14 +88,14 @@ impl Money {
     fn franc(amount: i32) -> Self {
         Self { amount, currency: Franc.into() }
     }
-    fn times(self, multiplier: i32) -> Expression {
+    fn times(&self, multiplier: i32) -> Expression {
         Money::new(self.amount * multiplier, self.currency).into()
     }
-    fn reduce(self, bank: &Bank, to: Currency) -> Self {
+    fn reduce(&self, bank: &Bank, to: Currency) -> Self {
         let rate = bank.rate(self.currency, to);
         Money::new(self.amount / rate, to)
     }
-    fn currency(self) -> &'static str {
+    fn currency(&self) -> &'static str {
         self.currency.currency()
     }
 }
@@ -141,6 +147,9 @@ impl Sum {
             addend: Box::new(addend),
         }
     }
+    fn times(&self, multiplier: i32) -> Expression {
+        Sum::new(self.augend.times(multiplier), self.addend.times(multiplier)).into()
+    }
     fn reduce(&self, bank: &Bank, to: Currency) -> Money {
         Money::new(
             self.augend.reduce(bank, to).amount + self.addend.reduce(bank, to).amount,
@@ -163,19 +172,20 @@ mod tests {
     fn test_equality() {
         assert_ne!(Money::dollar(5), Money::dollar(6));
         assert_eq!(Money::dollar(5), Money::dollar(5));
+        assert_ne!(Money::dollar(5), Money::franc(5));
     }
 
     #[test]
     fn test_multiplication() {
-        let five = Money::dollar(5);
+        let five: Expression = Money::dollar(5).into();
         assert_eq!(Expression::Money(Money::dollar(10)), five.times(2));
         assert_eq!(Expression::Money(Money::dollar(15)), five.times(3));
     }
 
     #[test]
     fn test_simple_addition() {
-        let five = Money::dollar(5);
-        let sum = five + five;
+        let five:Expression = Money::dollar(5).into();
+        let sum = five.plus(&five);
         let bank = Bank::new();
         let reduced = bank.reduce(sum, Dollar.into());
         assert_eq!(Money::dollar(10), reduced);
@@ -236,5 +246,16 @@ mod tests {
         bank.add_rate(Franc.into(), Dollar.into(), 2);
         let result = bank.reduce(five_bucks.plus(&ten_francs), Dollar.into());
         assert_eq!(Money::dollar(10), result);
+    }
+
+    #[test]
+    fn test_sum_times() {
+        let five_bucks: Expression = Money::dollar(5).into();
+        let ten_francs: Expression = Money::franc(10).into();
+        let mut bank = Bank::new();
+        bank.add_rate(Franc.into(), Dollar.into(), 2);
+        let sum: Expression = Sum::new(five_bucks, ten_francs).times(2).into();
+        let result = bank.reduce(sum, Dollar.into());
+        assert_eq!(Money::dollar(20), result);
     }
 }

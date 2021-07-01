@@ -8,11 +8,10 @@
 - [x] timesの一般化
 - [x] FrancとDollarを比較する
 - [x] 通貨の概念
-- [ ] $5 + 10 CHF = $10 (レートが2:1)の場合
+- [x] $5 + 10 CHF = $10 (レートが2:1)の場合
 - [x] $5 + $5 = $10
-- [ ] $5 + $5 がMoneyを返す
 - [x] Bank.reduce(Money)
 - [x] Moneyを変換して演算を行う
 - [x] Reduce(Bank, Currency)
-- [ ] Sum.plus
-- [ ] Expression.times
+- [x] Sum.plus enumでやったので不要
+- [x] Expression.times enumでやったので不要
