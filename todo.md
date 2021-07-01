@@ -14,3 +14,5 @@
 - [x] Bank.reduce(Money)
 - [x] Moneyを変換して演算を行う
 - [x] Reduce(Bank, Currency)
+- [ ] Sum.plus
+- [ ] Expression.times
