@@ -15,6 +15,12 @@ enum Currency {
 }
 
 impl Currency {
+    fn dollar() -> Self {
+        Currency::Dollar(Dollar)
+    }
+    fn franc() -> Self {
+        Currency::Franc(Franc)
+    }
     fn currency(self) -> &'static str {
         match self {
             Currency::Dollar(_) => "USD",
@@ -48,10 +54,10 @@ impl Money {
         Self { amount, currency }
     }
     fn dollar(amount: i32) -> Self {
-        Self { amount, currency: Currency::Dollar(Dollar) }
+        Self { amount, currency: Currency::dollar() }
     }
     fn franc(amount: i32) -> Self {
-        Self { amount, currency: Currency::Franc(Franc) }
+        Self { amount, currency: Currency::franc() }
     }
     fn times(self, multiplier: i32) -> Self {
         Money::new(self.amount * multiplier, self.currency)
@@ -111,7 +117,7 @@ mod tests {
         let five = Money::dollar(5);
         let sum = five + five;
         let bank = Bank {};
-        let reduced = bank.reduce(sum, Currency::Dollar(Dollar));
+        let reduced = bank.reduce(sum, Currency::dollar());
         assert_eq!(Money::dollar(10), reduced);
     }
 
@@ -133,7 +139,7 @@ mod tests {
             Sum::new(Money::dollar(3), Money::dollar(4))
         );
         let bank = Bank {};
-        let reduced = bank.reduce(sum, Currency::Dollar(Dollar));
+        let reduced = bank.reduce(sum, Currency::dollar());
         assert_eq!(Money::dollar(7), reduced);
     }
 
@@ -141,7 +147,7 @@ mod tests {
     fn test_plus_reduce_money() {
         let bank = Bank {};
         let money = Expression::Money(Money::dollar(1));
-        let reduced = bank.reduce(money, Currency::Dollar(Dollar));
+        let reduced = bank.reduce(money, Currency::dollar());
         assert_eq!(Money::dollar(1), reduced);
     }
 
