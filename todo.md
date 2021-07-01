@@ -9,10 +9,8 @@
 - [x] FrancとDollarを比較する
 - [x] 通貨の概念
 - [ ] $5 + 10 CHF = $10 (レートが2:1)の場合
-- [ ] $5 + $5 = $10
+- [x] $5 + $5 = $10
 - [ ] $5 + $5 がMoneyを返す
 - [x] Bank.reduce(Money)
-- [ ] Moneyの丸め処理をどうする？
-- [ ] 他のオブジェクトとの等価比較
-- [ ] DollarとFrancの重複
-- [ ] test_franc_multiplicationを削除する？
+- [x] Moneyを変換して演算を行う
+- [x] Reduce(Bank, Currency)
