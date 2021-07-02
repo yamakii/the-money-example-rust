@@ -2,6 +2,7 @@
 
 use std::ops::Add;
 use std::collections::HashMap;
+use std::convert::TryFrom;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 struct Dollar;
@@ -16,7 +17,7 @@ enum Currency {
 }
 
 impl Currency {
-    fn currency(self) -> &'static str {
+    fn to_str(self) -> &'static str {
         match self {
             Currency::Dollar(_) => "USD",
             Currency::Franc(_) => "CHF"
@@ -33,6 +34,18 @@ impl From<Dollar> for Currency {
 impl From<Franc> for Currency {
     fn from(franc: Franc) -> Self {
         Currency::Franc(franc)
+    }
+}
+
+impl TryFrom<&str> for Currency {
+    type Error = ();
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        match value {
+            "USD" => Result::Ok(Dollar.into()),
+            "CHF" => Result::Ok(Franc.into()),
+            _ => Result::Err(())
+        }
     }
 }
 
@@ -95,8 +108,8 @@ impl Money {
         let rate = bank.rate(self.currency, to);
         Money::new(self.amount / rate, to)
     }
-    fn currency(&self) -> &'static str {
-        self.currency.currency()
+    fn currency(&self) -> Currency {
+        self.currency
     }
 }
 
@@ -160,12 +173,20 @@ impl Sum {
 
 #[cfg(test)]
 mod tests {
-    use crate::money_unit::{Money, Bank, Sum, Expression, Dollar, Franc};
+    use crate::money_unit::{Money, Bank, Sum, Expression, Dollar, Franc, Currency};
+    use std::convert::TryInto;
 
     #[test]
     fn test_currency() {
-        assert_eq!("USD", Money::dollar(1).currency());
-        assert_eq!("CHF", Money::franc(1).currency());
+        assert_eq!(Currency::Dollar(Dollar), Money::dollar(1).currency());
+        assert_eq!(Currency::Franc(Franc), Money::franc(1).currency());
+    }
+
+    #[test]
+    fn test_currency_from_str() {
+        assert_eq!(Currency::Dollar(Dollar), "USD".try_into().unwrap());
+        assert_eq!(Currency::Franc(Franc), "CHF".try_into().unwrap());
+        assert_eq!(Result::<Currency, ()>::Err(()), "".try_into())
     }
 
     #[test]
@@ -184,7 +205,7 @@ mod tests {
 
     #[test]
     fn test_simple_addition() {
-        let five:Expression = Money::dollar(5).into();
+        let five: Expression = Money::dollar(5).into();
         let sum = five.plus(&five);
         let bank = Bank::new();
         let reduced = bank.reduce(sum, Dollar.into());
