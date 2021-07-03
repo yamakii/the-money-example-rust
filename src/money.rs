@@ -2,7 +2,7 @@
 
 use std::ops::{Add, Mul};
 use std::collections::HashMap;
-use std::convert::TryFrom;
+use std::str::FromStr;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 struct Dollar;
@@ -14,15 +14,6 @@ struct Franc;
 enum Currency {
     Dollar(Dollar),
     Franc(Franc),
-}
-
-impl Currency {
-    fn to_str(self) -> &'static str {
-        match self {
-            Currency::Dollar(_) => "USD",
-            Currency::Franc(_) => "CHF"
-        }
-    }
 }
 
 impl From<Dollar> for Currency {
@@ -37,14 +28,23 @@ impl From<Franc> for Currency {
     }
 }
 
-impl TryFrom<&str> for Currency {
-    type Error = ();
+impl FromStr for Currency {
+    type Err = ();
 
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        match value {
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
             "USD" => Result::Ok(Dollar.into()),
             "CHF" => Result::Ok(Franc.into()),
             _ => Result::Err(())
+        }
+    }
+}
+
+impl ToString for Currency {
+    fn to_string(&self) -> String {
+        match self {
+            Currency::Dollar(_) => "USD".to_string(),
+            Currency::Franc(_) => "CHF".to_string(),
         }
     }
 }
@@ -189,7 +189,7 @@ impl Mul<i32> for &Sum {
 #[cfg(test)]
 mod tests {
     use crate::money::{Money, Bank, Sum, Expression, Dollar, Franc, Currency};
-    use std::convert::TryInto;
+    use std::str::FromStr;
 
     #[test]
     fn test_currency() {
@@ -199,9 +199,9 @@ mod tests {
 
     #[test]
     fn test_currency_from_str() {
-        assert_eq!(Currency::Dollar(Dollar), "USD".try_into().unwrap());
-        assert_eq!(Currency::Franc(Franc), "CHF".try_into().unwrap());
-        assert_eq!(Result::<Currency, ()>::Err(()), "".try_into())
+        assert_eq!(Currency::Dollar(Dollar), Currency::from_str("USD").unwrap());
+        assert_eq!(Currency::Franc(Franc), Currency::from_str("CHF").unwrap());
+        assert_eq!(Result::<Currency, ()>::Err(()), Currency::from_str(""))
     }
 
     #[test]
