@@ -80,7 +80,12 @@ impl Expression {
             Expression::Money(money) => money.times(multiplier),
         }
     }
-    fn plus(&self, rhs: &Self) -> Expression {
+}
+
+impl Add for &Expression {
+    type Output = Expression;
+
+    fn add(self, rhs: Self) -> Self::Output {
         Sum::new(self.clone(), rhs.clone()).into()
     }
 }
@@ -206,7 +211,7 @@ mod tests {
     #[test]
     fn test_simple_addition() {
         let five: Expression = Money::dollar(5).into();
-        let sum = five.plus(&five);
+        let sum = &five + &five;
         let bank = Bank::new();
         let reduced = bank.reduce(sum, Dollar.into());
         assert_eq!(Money::dollar(10), reduced);
@@ -215,7 +220,7 @@ mod tests {
     #[test]
     fn test_plus_return_sum() {
         let five: Expression = Money::dollar(5).into();
-        let result = five.plus(&five);
+        let result = &five + &five;
         let sum = match result {
             Expression::Sum(x) => x,
             _ => panic!("Sumが来るはず")
@@ -265,7 +270,7 @@ mod tests {
         let ten_francs: Expression = Money::franc(10).into();
         let mut bank = Bank::new();
         bank.add_rate(Franc.into(), Dollar.into(), 2);
-        let result = bank.reduce(five_bucks.plus(&ten_francs), Dollar.into());
+        let result = bank.reduce(&five_bucks + &ten_francs, Dollar.into());
         assert_eq!(Money::dollar(10), result);
     }
 
