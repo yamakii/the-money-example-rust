@@ -122,7 +122,7 @@ impl Add for Money {
     type Output = Expression;
 
     fn add(self, rhs: Self) -> Self::Output {
-        Sum::new(self.into(), rhs.into()).into()
+        &Expression::Money(self) + &Expression::Money(rhs)
     }
 }
 
