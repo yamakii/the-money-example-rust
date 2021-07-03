@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use std::ops::Add;
+use std::ops::{Add, Mul};
 use std::collections::HashMap;
 use std::convert::TryFrom;
 
@@ -76,8 +76,8 @@ impl Expression {
     }
     fn times(&self, multiplier: i32) -> Expression {
         match self {
-            Expression::Sum(sum) => sum.times(multiplier),
-            Expression::Money(money) => money.times(multiplier),
+            Expression::Sum(sum) => sum * multiplier,
+            Expression::Money(money) => *money * multiplier,
         }
     }
 }
@@ -106,9 +106,6 @@ impl Money {
     fn franc(amount: i32) -> Self {
         Self { amount, currency: Franc.into() }
     }
-    fn times(&self, multiplier: i32) -> Expression {
-        Money::new(self.amount * multiplier, self.currency).into()
-    }
     fn reduce(&self, bank: &Bank, to: Currency) -> Self {
         let rate = bank.rate(self.currency, to);
         Money::new(self.amount / rate, to)
@@ -123,6 +120,14 @@ impl Add for Money {
 
     fn add(self, rhs: Self) -> Self::Output {
         &Expression::Money(self) + &Expression::Money(rhs)
+    }
+}
+
+impl Mul<i32> for Money {
+    type Output = Expression;
+
+    fn mul(self, rhs: i32) -> Self::Output {
+        Money::new(self.amount * rhs, self.currency).into()
     }
 }
 
@@ -165,14 +170,19 @@ impl Sum {
             addend: Box::new(addend),
         }
     }
-    fn times(&self, multiplier: i32) -> Expression {
-        Sum::new(self.augend.times(multiplier), self.addend.times(multiplier)).into()
-    }
     fn reduce(&self, bank: &Bank, to: Currency) -> Money {
         Money::new(
             self.augend.reduce(bank, to).amount + self.addend.reduce(bank, to).amount,
             to,
         )
+    }
+}
+
+impl Mul<i32> for &Sum {
+    type Output = Expression;
+
+    fn mul(self, rhs: i32) -> Self::Output {
+        Sum::new(self.augend.times(rhs), self.addend.times(rhs)).into()
     }
 }
 
@@ -280,7 +290,7 @@ mod tests {
         let ten_francs: Expression = Money::franc(10).into();
         let mut bank = Bank::new();
         bank.add_rate(Franc.into(), Dollar.into(), 2);
-        let sum: Expression = Sum::new(five_bucks, ten_francs).times(2).into();
+        let sum: Expression = (&Sum::new(five_bucks, ten_francs) * 2).into();
         let result = bank.reduce(sum, Dollar.into());
         assert_eq!(Money::dollar(20), result);
     }
